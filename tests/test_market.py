@@ -5,10 +5,13 @@ from dataclasses import dataclass
 import unittest
 import logging
 from typing import Any
+from elfpy.markets import Market
 
 import utils_for_tests as test_utils  # utilities for testing
-from elfpy.types import MarketDeltas
+from elfpy.types import MarketDeltas, MarketState, StretchedTime
 from elfpy.wallet import Wallet, Long, Short
+from elfpy.pricing_models.hyperdrive import HyperdrivePricingModel
+from elfpy.agent import Agent
 
 import elfpy.utils.outputs as output_utils  # utilities for file outputs
 
@@ -366,3 +369,65 @@ class MarketTestsOneFunction(BaseMarketTest):
         self.run_market_test_close_short(
             agent_policy=agent_policy, expected_deltas=expected_deltas, partial=0.5, tick_time=True
         )
+
+    def test_example(self):
+        # Set up the market
+        apr = 0.05
+        pricing_model = HyperdrivePricingModel()
+        position_duration = StretchedTime(days=365, time_stretch=pricing_model.calc_time_stretch(apr))
+        share_reserves = 1_000
+        bond_reserves = pricing_model.calc_bond_reserves(apr, share_reserves, position_duration, 1, 1)
+        market = Market(
+            pricing_model=pricing_model,
+            market_state=MarketState(
+                share_reserves=share_reserves,
+                bond_reserves=bond_reserves,
+                lp_reserves=share_reserves + bond_reserves,
+            ),
+            position_duration=position_duration,
+        )
+
+        # Ike is our initial LP.
+        ike = Agent(wallet_address=0, budget=0)
+        ike.wallet.lp_tokens = market.market_state.lp_reserves
+
+        # Larry is our long.
+        larry = Agent(wallet_address=1, budget=1_000)
+
+        # Sally is our short.
+        sally = Agent(wallet_address=2, budget=1_000)
+
+        # Larry opens a long.
+        (market_deltas, wallet_deltas) = market.open_long(wallet_address=1, trade_amount=250)
+        market.update_market(market_deltas)
+        larry.update_wallet(wallet_deltas, market)
+
+        # Sally opens a short that cancels out larry's long.
+        (mint_time, long) = list(larry.wallet.longs.items())[0]
+        (market_deltas, wallet_deltas) = market.open_short(wallet_address=2, trade_amount=long.balance)
+        market.update_market(market_deltas)
+        sally.update_wallet(wallet_deltas, market)
+
+        # 0.2 time passes, share price increases to 1.02
+        market.tick(0.2)
+        market.market_state.share_price = 1.02
+
+        # Sally closes out her shorts.
+        (mint_time, short) = list(sally.wallet.shorts.items())[0]
+        (market_deltas, wallet_deltas) = market.close_short(
+            wallet_address=2, trade_amount=short.balance, mint_time=mint_time
+        )
+        market.update_market(market_deltas)
+        sally.update_wallet(wallet_deltas, market)
+
+        # 0.8 time passes, share price increases to 1.1
+        market.tick(0.8)
+        market.market_state.share_price = 1.1
+
+        # Larry closes out his long.
+        (mint_time, long) = list(larry.wallet.longs.items())[0]
+        (market_deltas, wallet_deltas) = market.close_long(
+            wallet_address=1, trade_amount=long.balance, mint_time=mint_time
+        )
+        market.update_market(market_deltas)
+        larry.update_wallet(wallet_deltas, market)
