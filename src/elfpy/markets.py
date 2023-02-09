@@ -343,6 +343,7 @@ class Market:
         compute wallet update spec with specific details
         will be conditional on the pricing model
         """
+        print("FOOOOOO")
         # TODO: Why are we clamping elsewhere but we don't apply the trade at all here?
         if trade_amount <= self.market_state.bond_reserves:
             # Perform the trade.

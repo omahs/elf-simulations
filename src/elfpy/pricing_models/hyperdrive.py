@@ -134,7 +134,7 @@ class HyperdrivePricingModel(YieldSpacePricingModel):
             out=Quantity(amount=float(out_amount * normalized_time), unit=out.unit),
             market_state=market_state,
             time_remaining=StretchedTime(  # time remaining is always fixed to the full term for flat+curve
-                days=time_remaining.normalizing_constant,  # position duration is the normalizing constant
+                days=time_remaining.days,  # position duration is the normalizing constant
                 time_stretch=time_remaining.time_stretch,
                 normalizing_constant=time_remaining.normalizing_constant,
             ),
@@ -253,7 +253,7 @@ class HyperdrivePricingModel(YieldSpacePricingModel):
         share_price = Decimal(market_state.share_price)
         d_bonds = in_amount * (1 - normalized_time)
         d_shares = d_bonds / share_price
-
+        print("fooooooooooooooooooooooooooooooooooooooooooo\n")
         # TODO: Verify that this is needed.
         market_state = copy.copy(market_state)
 
@@ -276,7 +276,7 @@ class HyperdrivePricingModel(YieldSpacePricingModel):
             in_=Quantity(amount=float(in_amount * normalized_time), unit=in_.unit),
             market_state=market_state,
             time_remaining=StretchedTime(  # time remaining is always fixed to the full term for flat+curve
-                days=time_remaining.normalizing_constant,  # position duration is the normalizing constant
+                days=time_remaining.days,  # position duration is the normalizing constant
                 time_stretch=time_remaining.time_stretch,
                 normalizing_constant=time_remaining.normalizing_constant,
             ),
