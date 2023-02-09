@@ -12,6 +12,7 @@ from elfpy.wallet import Wallet, Long, Short
 from elfpy.types import StretchedTime, MarketState
 from elfpy.markets import Market
 from elfpy.pricing_models.base import PricingModel
+from elfpy.pricing_models.hyperdrive import HyperdrivePricingModel
 
 import elfpy.utils.outputs as output_utils  # utilities for file outputs
 
@@ -385,3 +386,22 @@ class MarketTestsOneFunction(BaseMarketTest):
         self.run_market_test_close_short(
             agent_policy=agent_policy, expected_deltas=expected_deltas, partial=0.5, tick_time=True
         )
+
+    def test_example(self):
+        pricing_model = HyperdrivePricingModel()
+        position_duration = StretchedTime(
+            days=91.25, time_stretch=pricing_model.calc_time_stretch(0.2), normalizing_constant=91.25
+        )
+        share_reserves = 1_000
+        market = Market(
+            pricing_model,
+            MarketState(
+                share_reserves=share_reserves,
+                bond_reserves=pricing_model.calc_bond_reserves(
+                    0.2, position_duration, MarketState(share_reserves=share_reserves)
+                ),
+            ),
+            position_duration,
+        )
+
+        print(f"{market.rate=}")
