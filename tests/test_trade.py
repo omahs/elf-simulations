@@ -119,7 +119,6 @@ class SingleTradeTests(unittest.TestCase):
                         share_reserves=share_reserves_direct,
                         bond_reserves=bond_reserves_direct,
                         base_buffer=simulator.market.market_state.base_buffer,
-                        bond_buffer=simulator.market.market_state.bond_buffer,
                         lp_reserves=simulator.market.market_state.lp_reserves,
                         vault_apr=simulator.market.market_state.vault_apr,
                         share_price=simulator.market.market_state.share_price,

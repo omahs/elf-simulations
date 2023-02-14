@@ -225,7 +225,6 @@ class PricingModel(ABC):
                 share_reserves=share_reserves,
                 bond_reserves=bond_reserves,
                 base_buffer=market_state.base_buffer,
-                bond_buffer=market_state.bond_buffer,
                 lp_reserves=market_state.lp_reserves,
                 share_price=market_state.share_price,
                 init_share_price=market_state.init_share_price,
@@ -382,7 +381,7 @@ class PricingModel(ABC):
             If they aren't document why they aren't.
             Otherwise, remove them.
         """
-        available_bonds = market_state.bond_reserves - market_state.bond_buffer
+        available_bonds = market_state.bond_reserves
         if available_bonds <= 0:
             return 0, 0
         last_maybe_max_long = 0, 0
@@ -438,7 +437,6 @@ class PricingModel(ABC):
                     < 0
                     or market_state_post_trade.share_price * market_state_post_trade.share_reserves
                     < market_state_post_trade.base_buffer
-                    or market_state_post_trade.bond_reserves < market_state_post_trade.bond_buffer
                 ):
                     bond_percent -= step_size
                 else:
@@ -509,7 +507,6 @@ class PricingModel(ABC):
                     delta=MarketDeltas(
                         d_base_asset=trade_result.market_result.d_base,
                         d_token_asset=trade_result.market_result.d_bonds,
-                        d_bond_buffer=maybe_max_short_bonds,
                     )
                 )
 
@@ -524,7 +521,6 @@ class PricingModel(ABC):
                     self.calc_apr_from_reserves(market_state=market_state_post_trade, time_remaining=time_remaining) < 0
                     or market_state_post_trade.share_price * market_state_post_trade.share_reserves
                     < market_state_post_trade.base_buffer
-                    or market_state_post_trade.bond_reserves < market_state_post_trade.bond_buffer
                 ):
                     bond_percent -= step_size
                 else:

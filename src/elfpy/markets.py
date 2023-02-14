@@ -249,7 +249,6 @@ class Market:
         market_deltas = MarketDeltas(
             d_base_asset=trade_result.market_result.d_base,
             d_token_asset=trade_result.market_result.d_bonds,
-            d_bond_buffer=trade_amount,
         )
         # amount to cover the worst case scenario where p=1. this amount is 1-p. see logic above.
         max_loss = trade_amount - trade_result.user_result.d_base
@@ -317,7 +316,6 @@ class Market:
         market_deltas = MarketDeltas(
             d_base_asset=trade_result.market_result.d_base,
             d_token_asset=trade_result.market_result.d_bonds,
-            d_bond_buffer=-trade_amount,
         )
         agent_deltas = Wallet(
             address=wallet_address,
@@ -518,24 +516,13 @@ class Market:
             spot_price = self.spot_price
             rate = self.rate
         logging.debug(
-            (
-                "t = %g"
-                "\nx = %g"
-                "\ny = %g"
-                "\nlp = %g"
-                "\nz = %g"
-                "\nx_b = %g"
-                "\ny_b = %g"
-                "\np = %s"
-                "\npool apr = %s"
-            ),
+            ("t = %g" "\nx = %g" "\ny = %g" "\nlp = %g" "\nz = %g" "\nx_b = %g" "\np = %s" "\npool apr = %s"),
             self.time,
             self.market_state.share_reserves * self.market_state.share_price,
             self.market_state.bond_reserves,
             self.market_state.lp_reserves,
             self.market_state.share_reserves,
             self.market_state.base_buffer,
-            self.market_state.bond_buffer,
             str(spot_price),
             str(rate),
         )

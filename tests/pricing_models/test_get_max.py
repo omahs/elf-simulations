@@ -42,7 +42,6 @@ class TestGetMax(unittest.TestCase):
                     share_reserves=1_000_000,
                     bond_reserves=1_000_000,
                     base_buffer=0,
-                    bond_buffer=0,
                     init_share_price=1,
                     share_price=1,
                     trade_fee_percent=0.1,
@@ -57,7 +56,6 @@ class TestGetMax(unittest.TestCase):
                     share_reserves=1_000_000,
                     bond_reserves=1_000_000,
                     base_buffer=100_000,
-                    bond_buffer=100_000,
                     init_share_price=1,
                     share_price=1,
                     trade_fee_percent=0.1,
@@ -72,7 +70,6 @@ class TestGetMax(unittest.TestCase):
                     share_reserves=100_000_000,
                     bond_reserves=1_000_000,
                     base_buffer=0,
-                    bond_buffer=0,
                     init_share_price=1,
                     share_price=1,
                     trade_fee_percent=0.1,
@@ -87,7 +84,6 @@ class TestGetMax(unittest.TestCase):
                     share_reserves=1_000_000,
                     bond_reserves=100_000_000,
                     base_buffer=0,
-                    bond_buffer=0,
                     init_share_price=1,
                     share_price=1,
                     trade_fee_percent=0.1,
@@ -102,7 +98,6 @@ class TestGetMax(unittest.TestCase):
                     share_reserves=500_000,
                     bond_reserves=1_000_000,
                     base_buffer=0,
-                    bond_buffer=0,
                     init_share_price=1.5,
                     share_price=2,
                     trade_fee_percent=0.1,
@@ -117,7 +112,6 @@ class TestGetMax(unittest.TestCase):
                     share_reserves=1_000_000,
                     bond_reserves=1_000_000,
                     base_buffer=0,
-                    bond_buffer=0,
                     init_share_price=1.5,
                     share_price=2,
                     trade_fee_percent=0.1,
@@ -132,7 +126,6 @@ class TestGetMax(unittest.TestCase):
                     share_reserves=1_000_000,
                     bond_reserves=1_000_000,
                     base_buffer=0,
-                    bond_buffer=0,
                     init_share_price=1.5,
                     share_price=2,
                     trade_fee_percent=0.5,
@@ -147,7 +140,6 @@ class TestGetMax(unittest.TestCase):
                     share_reserves=1_000_000,
                     bond_reserves=1_000_000,
                     base_buffer=0,
-                    bond_buffer=0,
                     init_share_price=1.5,
                     share_price=2,
                     trade_fee_percent=0.1,
@@ -162,7 +154,6 @@ class TestGetMax(unittest.TestCase):
                     share_reserves=1_000_000,
                     bond_reserves=1_000_000,
                     base_buffer=0,
-                    bond_buffer=0,
                     init_share_price=1.5,
                     share_price=2,
                     trade_fee_percent=0.1,
@@ -237,7 +228,6 @@ class TestGetMax(unittest.TestCase):
             delta = MarketDeltas(
                 d_base_asset=trade_result.market_result.d_base,
                 d_token_asset=trade_result.market_result.d_bonds,
-                d_bond_buffer=-trade_result.user_result.d_bonds,
             )
         market_state.apply_delta(delta=delta)
 
@@ -247,8 +237,4 @@ class TestGetMax(unittest.TestCase):
         self.assertGreaterEqual(
             market_state.share_price * market_state.share_reserves,
             market_state.base_buffer,
-        )
-        self.assertGreaterEqual(
-            market_state.bond_reserves,
-            market_state.bond_buffer,
         )

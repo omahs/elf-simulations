@@ -184,7 +184,6 @@ class MarketTestsOneFunction(BaseMarketTest):
             d_base_asset=d_base,  # base asset increases because agent is selling base into market to buy bonds
             d_token_asset=-d_bonds,  # token asset increases because agent is buying bonds from market to sell base
             d_base_buffer=d_bonds,  # base buffer increases, identifying agent deposits, set aside from LPs
-            d_bond_buffer=0,  # bond buffer doesn't change because agent did not deposit bonds
             d_lp_reserves=0,
             d_share_price=0,
         )
@@ -213,7 +212,6 @@ class MarketTestsOneFunction(BaseMarketTest):
             d_base_asset=-d_base,  # base asset decreases because agent is buying base into market to sell bonds
             d_token_asset=d_bonds,  # token asset increases because agent is selling bonds into market to buy base
             d_base_buffer=-d_bonds,  # base buffer decreases, identifying agent withdrawals, no longer set aside
-            d_bond_buffer=0,  # bond buffer doesn't change because agent did not withdraw bonds
             d_lp_reserves=0,
             d_share_price=0,
         )
@@ -242,7 +240,6 @@ class MarketTestsOneFunction(BaseMarketTest):
             d_base_asset=-d_base,  # base asset decreases because agent is buying base from market to sell bonds
             d_token_asset=d_bonds,  # token asset increases because agent is selling bonds into market to buy base
             d_base_buffer=0,  # bond buffer doesn't change because agent did not deposit base
-            d_bond_buffer=d_bonds,  # bond buffer increases, identifying agent deposits, set aside from LPs
             d_lp_reserves=0,
             d_share_price=0,
         )
@@ -273,7 +270,6 @@ class MarketTestsOneFunction(BaseMarketTest):
             d_base_asset=d_base_market,  # base asset decreases because agent is buying base from market to sell bonds
             d_token_asset=-d_bonds,  # token asset increases because agent is selling bonds into market to buy base
             d_base_buffer=0,  # base buffer doesn't change because agent did not withdraw base
-            d_bond_buffer=-d_bonds,  # bond buffer decreases, identifying agent withdrawals, no longer set aside
             d_lp_reserves=0,
             d_share_price=0,
         )
@@ -302,7 +298,6 @@ class MarketTestsOneFunction(BaseMarketTest):
             d_base_asset=d_base_market,  # base asset decreases because agent is buying base from market to sell bonds
             d_token_asset=-d_bonds,  # token asset increases because agent is selling bonds into market to buy base
             d_base_buffer=0,  # base buffer doesn't change because agent did not withdraw base
-            d_bond_buffer=-d_bonds,  # bond buffer decreases, identifying agent withdrawals, no longer set aside
             d_lp_reserves=0,
             d_share_price=0,
         )
@@ -334,7 +329,6 @@ class MarketTestsOneFunction(BaseMarketTest):
             d_base_asset=d_base_market,  # base asset decreases because agent is buying base from market to sell bonds
             d_token_asset=-d_bonds,  # token asset increases because agent is selling bonds into market to buy base
             d_base_buffer=0,  # base buffer doesn't change because agent did not withdraw base
-            d_bond_buffer=-d_bonds,  # bond buffer decreases, identifying agent withdrawals, no longer set aside
             d_lp_reserves=0,
             d_share_price=0,
         )
@@ -366,7 +360,6 @@ class MarketTestsOneFunction(BaseMarketTest):
             d_base_asset=d_base_market,  # base asset decreases because agent is buying base from market to sell bonds
             d_token_asset=-d_bonds,  # token asset increases because agent is selling bonds into market to buy base
             d_base_buffer=0,  # base buffer doesn't change because agent did not withdraw base
-            d_bond_buffer=-d_bonds,  # bond buffer decreases, identifying agent withdrawals, no longer set aside
             d_lp_reserves=0,
             d_share_price=0,
         )

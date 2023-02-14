@@ -179,7 +179,6 @@ class MarketDeltas:
     d_base_asset: float = 0
     d_token_asset: float = 0
     d_base_buffer: float = 0
-    d_bond_buffer: float = 0
     d_lp_reserves: float = 0
     d_share_price: float = 0
 
@@ -195,7 +194,6 @@ class MarketDeltas:
             f"\t{self.d_base_asset=},\n"
             f"\t{self.d_token_asset=},\n"
             f"\t{self.d_base_buffer=},\n"
-            f"\t{self.d_bond_buffer=},\n"
             f"\t{self.d_lp_reserves=},\n"
             f"\t{self.d_share_price=},\n"
             ")"
@@ -220,8 +218,6 @@ class MarketState:
         Quantity of bonds stored in the market
     base_buffer: float
         Base amount set aside to account for open longs
-    bond_buffer: float
-        Bond amount set aside to account for open shorts
     lp_reserves: float
         Amount of lp tokens
     trade_fee_percent : float
@@ -241,7 +237,6 @@ class MarketState:
 
     # trading buffers
     base_buffer: float = 0.0
-    bond_buffer: float = 0.0
 
     # lp reserves
     lp_reserves: float = 0.0
@@ -261,7 +256,6 @@ class MarketState:
         self.share_reserves += delta.d_base_asset / self.share_price
         self.bond_reserves += delta.d_token_asset
         self.base_buffer += delta.d_base_buffer
-        self.bond_buffer += delta.d_bond_buffer
         self.lp_reserves += delta.d_lp_reserves
         self.share_price += delta.d_share_price
 
@@ -290,7 +284,6 @@ class MarketState:
             "\t),\n"
             "\ttrading_buffers(\n"
             f"\t\t{self.base_buffer=},\n"
-            f"\t\t{self.bond_buffer=},\n"
             "\t),\n"
             "\tlp_reserves(\n"
             f"\t\t{self.lp_reserves=},\n"
