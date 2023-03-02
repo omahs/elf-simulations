@@ -22,7 +22,6 @@
     <img src="https://codecov.io/gh/element-fi/elf-simulations/branch/main/graphs/sunburst.svg?token=1S60MD42ZP">
   </div>
 </div>
-<div k>
 
 # [Element Finance](https://element.fi) market simulation and analysis
 
