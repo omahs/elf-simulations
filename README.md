@@ -1,8 +1,17 @@
-[![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/PyCQA/pylint)
-[![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![testing: pytest](https://img.shields.io/badge/testing-pytest-blue.svg)](https://docs.pytest.org/en/latest/contents.html)
-[![codecov](https://codecov.io/gh/element-fi/elf-simulations/branch/main/graph/badge.svg?token=1S60MD42ZP)](https://codecov.io/gh/element-fi/elf-simulations)
-[![codecov](https://codecov.io/gh/element-fi/elf-simulations/branch/main/graph/badge.svg?token=1S60MD42ZP)](https://codecov.io/gh/element-fi/elf-simulations/branch/main/graphs/tree.svg?token=1S60MD42ZP)
+<div>
+  <div>
+    <a hre="https://codecov.io/gh/element-fi/elf-simulations">
+      <img src="https://codecov.io/gh/element-fi/elf-simulations/branch/main/graph/badge.svg?token=1S60MD42ZP"/>
+    </a>
+    <a hre="https://github.com/psf/black">
+      <img src="https://img.shields.io/badge/code%20style-black-000000.svg"/>
+    </a>
+    <a hre="https://docs.pytest.org/en/latest/contents.html">
+      <img src="https://img.shields.io/badge/testing-pytest-blue.svg"/>
+    </a>
+  </div>
+  <img padding="0px" height="50px" width="50px" src="https://codecov.io/gh/element-fi/elf-simulations/branch/main/graphs/sunburst.svg?token=1S60MD42ZP" />
+</div>
 
 # [Element Finance](https://element.fi) market simulation and analysis
 
