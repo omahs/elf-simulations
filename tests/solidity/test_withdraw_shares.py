@@ -49,7 +49,7 @@ class TestWithdrawShares(unittest.TestCase):
             block_time=self.block_time,
         )
         _, wallet_deltas = self.hyperdrive.initialize(self.initial_liquidity, self.target_apr)
-        self.alice.wallet.update(wallet_deltas)
+        self.alice.wallet.apply_delta(wallet_deltas)
 
     # TODO: complete this
     def test_redeem_withdraw_shares_fail_insufficient_shares(self):

@@ -228,7 +228,7 @@ class Wallet:
         """Returns a new copy of self"""
         return Wallet(**copy.deepcopy(self.__dict__))
 
-    def update(self, wallet_deltas: WalletDeltas) -> None:
+    def apply_delta(self, wallet_deltas: WalletDeltas) -> None:
         """Update the agent's wallet
 
         Arguments

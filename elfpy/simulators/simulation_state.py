@@ -232,8 +232,10 @@ class NewSimulationState:
 
     @property
     def combined_dataframe(self) -> pd.DataFrame:
-        r"""Returns a single dataframe that combines the run, day, block, and trade variables
+        r"""Returns a single dataframe that combines the run, day, block, and trade variables.
+
         The merged dataframe has the same number of rows as self.trade_updates,
-        with entries in the smaller dataframes duplicated accordingly
+        with entries in the smaller dataframes duplicated accordingly.
+        Merging is done on the intersection of the columns in the DataFrames.
         """
         return self.trade_updates.merge(self.block_updates.merge(self.day_updates.merge(self.run_updates)))

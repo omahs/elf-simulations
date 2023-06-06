@@ -197,7 +197,7 @@ class BorrowMarket(BaseMarket[BorrowMarketState, BorrowMarketDeltas, BorrowPrici
         """
         market_deltas, agent_deltas = self.calc_open_borrow(collateral, spot_price)
         self.market_state.apply_delta(market_deltas)
-        agent_wallet.update(agent_deltas)
+        agent_wallet.apply_delta(agent_deltas)
         return market_deltas, agent_deltas
 
     def calc_close_borrow(
@@ -246,7 +246,7 @@ class BorrowMarket(BaseMarket[BorrowMarketState, BorrowMarketDeltas, BorrowPrici
         """
         market_deltas, agent_deltas = self.calc_close_borrow(collateral, spot_price)
         self.market_state.apply_delta(market_deltas)
-        agent_wallet.update(agent_deltas)
+        agent_wallet.apply_delta(agent_deltas)
         return market_deltas, agent_deltas
 
     def update_share_prices(self, compound_vault_apr=True) -> None:

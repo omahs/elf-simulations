@@ -54,7 +54,6 @@ class Simulator:
         # but exist at the time they are accessed.
         self.config.freeze()  # type: ignore
         self.agents: dict[int, Agent] = {}
-
         # Simulation variables
         self.run_number = 0
         self.day = 0

@@ -42,9 +42,10 @@ config = Config()
 # General config parameters
 config.title = "Hyperdrive smart agent demo"
 config.pricing_model_name = "Hyperdrive"  # can be yieldspace or hyperdrive
+config.do_dataframe_states = True
 
-config.num_trading_days = 20  # 1095 # Number of simulated trading days
-config.num_blocks_per_day = 5  # 7200 # Blocks in a given day (7200 means ~12 sec per block)
+config.num_trading_days = 3  # 20  # 1095 # Number of simulated trading days
+config.num_blocks_per_day = 3  # 5  # 7200 # Blocks in a given day (7200 means ~12 sec per block)
 config.num_position_days = 10  # 90 # How long a token reaches maturity
 
 config.curve_fee_multiple = 0.05  # fee multiple applied to the price slippage (1-p) collected on trades
@@ -59,14 +60,14 @@ config.log_filename = "sally_n_louie"  # Output filename for logging
 config.shuffle_users = True
 
 # Notebook specific parameters
-config.scratch["num_sallys"] = 15
-config.scratch["num_louies"] = 20 * config.scratch["num_sallys"]
+config.scratch["num_sallys"] = 2  # 15
+config.scratch["num_louies"] = 2  # 20 * config.scratch["num_sallys"]
 config.scratch["num_agents"] = (
     config.scratch["num_sallys"] + config.scratch["num_louies"]
 )  # int specifying how many agents you want to simulate
 config.scratch[
     "trade_chance"
-] = 0.1  # 1 / (config.num_trading_days * num_agents) # on a given block, an agent will trade with probability `trade_chance`
+] = 1.0  # 0.1  # 1 / (config.num_trading_days * num_agents) # on a given block, an agent will trade with probability `trade_chance`
 
 config.scratch["louie_budget_mean"] = 375_000
 config.scratch["louie_budget_std"] = 25_000

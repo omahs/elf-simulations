@@ -63,7 +63,7 @@ class TestCloseShort(unittest.TestCase):
             block_time=block_time,
         )
         _, wallet_deltas = self.hyperdrive.initialize(self.contribution, self.target_apr)
-        self.alice.wallet.update(wallet_deltas)
+        self.alice.wallet.apply_delta(wallet_deltas)
 
     def verify_close_short(
         self,

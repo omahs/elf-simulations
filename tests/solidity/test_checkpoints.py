@@ -49,7 +49,7 @@ class TestCheckpoint(unittest.TestCase):
             ),
         )
         _, wallet_deltas = self.hyperdrive.initialize(self.contribution, self.target_apr)
-        self.alice.wallet.update(wallet_deltas)
+        self.alice.wallet.apply_delta(wallet_deltas)
 
     def test_checkpoint_failure_future_checkpoint(self):
         """Test that creating a checkpoint in the future fails"""

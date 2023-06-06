@@ -258,7 +258,7 @@ for day in range(config.num_trading_days):
             action_details = (trade[0], trade[1].trade)
             agent_id, agent_deltas, market_deltas = market.perform_action(action_details)
             market.update_market(market_deltas)
-            agents[agent_id].wallet.update(agent_deltas)
+            agents[agent_id].wallet.apply_delta(agent_deltas)
             simulation_state.day.append(day)
             simulation_state.block.append(block_number)
             agent_summary = agent_deltas.__dict__

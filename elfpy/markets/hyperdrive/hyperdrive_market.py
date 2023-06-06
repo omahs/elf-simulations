@@ -488,7 +488,7 @@ class HyperdriveMarket(
             raise errors.OutputLimit()
         # apply deltas
         self.market_state.apply_delta(market_deltas)
-        agent_wallet.update(agent_deltas)
+        agent_wallet.apply_delta(agent_deltas)
         return market_deltas, agent_deltas
 
     def close_short(
@@ -513,7 +513,7 @@ class HyperdriveMarket(
         )
         # apply deltas
         self.market_state.apply_delta(market_deltas)
-        agent_wallet.update(agent_deltas)
+        agent_wallet.apply_delta(agent_deltas)
         return market_deltas, agent_deltas
 
     def open_long(
@@ -537,7 +537,7 @@ class HyperdriveMarket(
         self.update_long_share_price(abs(market_deltas.d_bond_asset))
         # apply deltas
         self.market_state.apply_delta(market_deltas)
-        agent_wallet.update(agent_deltas)
+        agent_wallet.apply_delta(agent_deltas)
         return market_deltas, agent_deltas
 
     def update_long_share_price(self, bond_proceeds: FixedPoint) -> None:
@@ -569,7 +569,7 @@ class HyperdriveMarket(
         )
         # apply deltas
         self.market_state.apply_delta(market_deltas)
-        agent_wallet.update(agent_deltas)
+        agent_wallet.apply_delta(agent_deltas)
         return market_deltas, agent_deltas
 
     def add_liquidity(
@@ -588,7 +588,7 @@ class HyperdriveMarket(
             self.block_time.time,
         )
         self.market_state.apply_delta(market_deltas)
-        agent_wallet.update(agent_deltas)
+        agent_wallet.apply_delta(agent_deltas)
         return market_deltas, agent_deltas
 
     def remove_liquidity(
@@ -605,7 +605,7 @@ class HyperdriveMarket(
             self.pricing_model,
         )
         self.market_state.apply_delta(market_deltas)
-        agent_wallet.update(agent_deltas)
+        agent_wallet.apply_delta(agent_deltas)
         return market_deltas, agent_deltas
 
     def checkpoint(self, checkpoint_time: FixedPoint) -> None:
@@ -730,7 +730,7 @@ class HyperdriveMarket(
         self.apply_checkpoint(self.latest_checkpoint_time, self.market_state.share_price)
         market_deltas, wallet_deltas = self.calc_redeem_withdraw_shares(shares, min_output, as_underlying)
         self.update_market(market_deltas)
-        agent_wallet.update(wallet_deltas)
+        agent_wallet.apply_delta(wallet_deltas)
         return wallet_deltas.balance.amount
 
     def calc_redeem_withdraw_shares(

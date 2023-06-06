@@ -4,39 +4,98 @@ from __future__ import annotations  # types will be strings by default in 3.11
 import pandas as pd
 
 import elfpy.simulators as simulators
+from elfpy.markets.hyperdrive import hyperdrive_actions, HyperdrivePricingModel
+from elfpy.math import FixedPoint
 
 # pyright: reportGeneralTypeIssues=false
 # pyright: reportOptionalMemberAccess=false
 
 
-def aggregate_agent_and_market_states(combined_trades_df: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate the trade details from the simulation state into a representation of market & wallet states per trade
-    TODO:
-    The new combined_trades_df stores the deltas (literally market_delta and agent_delta).
-    We want this function to loop over every trade and construct the market state by applying each delta.
-    We can also compute the PNL values in the loop. This should be able to take advantage of multi-threading,
-    since the delta values are fixed & we don't have to worry about trades changing what they would be.
-    Example:
-        market_state = hyperdrive.MarketState(
-            lp_total_supply=combined_trades_df.market_init.iloc[0].lp_total_supply,
-            share_reserves=combined_trades_df.market_init.iloc[0].share_reserves,
-            bond_reserves=combined_trades_df.market_init.iloc[0].bond_reserves,
-            variable_apr=combined_trades_df.market_init.iloc[0].variable_apr,
-            share_price=combined_trades_df.market_init.iloc[0].share_price,
-            init_share_price=combined_trades_df.market_init.iloc[0].init_share_price,
-            curve_fee_multiple=combined_trades_df.market_init.iloc[0].curve_fee_multiple,
-            flat_fee_multiple=combined_trades_df.market_init.iloc[0].flat_fee_multiple,
+def aggregate_simulation_state(combined_trades_df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate the trade details from the simulation state into a representation of market & wallet states per trade"""
+    # one pnl calculation per trade
+    pnl_states = []
+    # one market state per trade
+    market_states = [combined_trades_df.loc[0, "market_init"]]
+    # wallet states are organized by agent first, then by trade
+    wallet_states = []
+    for agent_init in combined_trades_df.loc[0, "agent_init"]:
+        wallet_states.append([agent_init])
+    for trade_index, trade in combined_trades_df.iterrows():
+        # get deltas
+        market_deltas = trade.market_deltas
+        agent_address = trade.agent_address
+        agent_deltas = trade.agent_deltas
+        # compute new market state from previous state
+        new_market_state = market_states[trade_index].copy().apply_delta(market_deltas)
+        new_wallet_state = wallet_states[agent_address][trade_index].copy().apply_delta(agent_deltas)
+        # add entry to the list
+        market_states.append(new_market_state)
+        wallet_states[agent_address].append(new_wallet_state)
+        ### PNL calculations
+        lp_token_value = FixedPoint(0)
+        # proceed further only if the agent has LP tokens and avoid divide by zero
+        if new_wallet_state.lp_tokens > FixedPoint(0) and new_market_state.lp_total_supply > FixedPoint(0):
+            share_of_pool = new_wallet_state.lp_tokens / new_market_state.lp_total_supply
+            pool_value = (
+                new_market_state.bond_reserves * trade.spot_price  # in base
+                + new_market_state.share_reserves * new_market_state.share_price  # in base
+            )
+            lp_token_value = pool_value * share_of_pool  # in base
+        share_reserves = new_market_state.share_reserves
+        # compute long values in units of base
+        longs_value = FixedPoint(0)
+        longs_value_no_mock = FixedPoint(0)
+        for mint_time, long in new_wallet_state.longs.items():
+            if long.balance > FixedPoint(0) and share_reserves:
+                balance = hyperdrive_actions.calc_close_long(
+                    bond_amount=long.balance,
+                    market_state=new_market_state,
+                    position_duration=trade.position_duration,
+                    pricing_model=HyperdrivePricingModel(),
+                    block_time=trade.time,
+                    mint_time=mint_time,
+                    is_trade=True,
+                )[1].balance.amount
+            else:
+                balance = FixedPoint(0)
+            longs_value += balance
+            longs_value_no_mock += long.balance * trade.spot_price
+        # compute short values in units of base
+        shorts_value = FixedPoint(0)
+        shorts_value_no_mock = FixedPoint(0)
+        for mint_time, short in new_wallet_state.shorts.items():
+            balance = FixedPoint(0)
+            if (
+                short.balance > FixedPoint(0)
+                and share_reserves > FixedPoint(0)
+                and new_market_state.bond_reserves - new_market_state.bond_buffer > short.balance
+            ):
+                balance = hyperdrive_actions.calc_close_short(
+                    bond_amount=short.balance,
+                    market_state=new_market_state,
+                    position_duration=trade.position_duration,
+                    pricing_model=HyperdrivePricingModel(),
+                    block_time=trade.time,
+                    mint_time=mint_time,
+                    open_share_price=short.open_share_price,
+                )[1].balance.amount
+            shorts_value += balance
+            base_no_mock = short.balance * (FixedPoint("1.0") - trade.spot_price)
+            shorts_value_no_mock += base_no_mock
+        pnl_states.append(
+            {
+                f"agent_{new_wallet_state.address}_base": new_wallet_state.balance.amount,
+                f"agent_{new_wallet_state.address}_lp_tokens": lp_token_value,
+                f"agent_{new_wallet_state.address}_num_longs": FixedPoint(len(new_wallet_state.longs)),
+                f"agent_{new_wallet_state.address}_num_shorts": FixedPoint(len(new_wallet_state.shorts)),
+                f"agent_{new_wallet_state.address}_total_longs": longs_value,
+                f"agent_{new_wallet_state.address}_total_shorts": shorts_value,
+                f"agent_{new_wallet_state.address}_total_longs_no_mock": longs_value_no_mock,
+                f"agent_{new_wallet_state.address}_total_shorts_no_mock": shorts_value_no_mock,
+            }
         )
-        agent_wallets = list(combined_trades_df.iloc[0, :].agent_init)
-        for trade_number in range(combined_trades_df.trade_number.max()):
-
-    def add_pnl_to_trades_df()
-        this can be done across prallel processors
-        loop through the sim trades
-        compute pnl
-        add columns
-    """
-    raise NotImplementedError
+    return market_states, wallet_states, pnl_states
 
 
 def aggregate_trade_data(trades: pd.DataFrame) -> pd.DataFrame:

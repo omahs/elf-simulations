@@ -57,7 +57,7 @@ def get_simulator(config: Config, agents: list[Agent] | None = None) -> simulato
             wallet_address=0, policy=InitializeLiquidityAgent(budget=FixedPoint(config.target_liquidity))
         )
         init_agent_action = init_agent.action(market)[0]
-        init_agent.wallet.update(init_agent_deltas)
+        init_agent.wallet.apply_delta(init_agent_deltas)
         simulator.add_agents([init_agent])
     if config.do_dataframe_states:
         # update state with day & block = 0 for the initialization trades

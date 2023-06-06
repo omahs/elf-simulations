@@ -186,7 +186,7 @@ class TestAgent(unittest.TestCase):
             longs={FixedPoint(0): Long(FixedPoint("15.0"))},
             fees_paid=FixedPoint("0.001"),
         )
-        example_wallet.update(example_deltas)
+        example_wallet.apply_delta(example_deltas)
         assert id(example_wallet.longs[FixedPoint(0)]) != id(example_deltas.longs[FixedPoint(0)]), (
             f"{example_wallet.longs=} should not hold a reference to {example_deltas.longs=},"
             f"but have the same ids: {id(example_wallet.longs[FixedPoint(0)])=}, "
@@ -203,7 +203,7 @@ class TestAgent(unittest.TestCase):
             longs={FixedPoint(0): Long(FixedPoint("8.0"))},
             fees_paid=FixedPoint("0.0008"),
         )
-        example_wallet.update(new_example_deltas)
+        example_wallet.apply_delta(new_example_deltas)
         assert example_wallet.longs[FixedPoint(0)].balance == FixedPoint(
             "23.0"
         ), f"{example_wallet.longs[FixedPoint(0)].balance=} should equal 15+8=23."

@@ -43,7 +43,7 @@ class TestAddLiquidity(unittest.TestCase):
             ),
         )
         _, wallet_deltas = self.hyperdrive.initialize(self.contribution, FixedPoint("0.05"))
-        self.alice.wallet.update(wallet_deltas)
+        self.alice.wallet.apply_delta(wallet_deltas)
 
     def test_add_liquidity_failure_zero_amount(self):
         """Test adding zero liquidity fails"""
@@ -86,7 +86,7 @@ class TestAddLiquidity(unittest.TestCase):
             spot_price=self.hyperdrive.spot_price,
         )
         self.hyperdrive.market_state.apply_delta(market_deltas)
-        self.celine.wallet.update(wallet_deltas)
+        self.celine.wallet.apply_delta(wallet_deltas)
 
         # Add liquidity with the same amount as the original contribution.
         market_deltas, wallet_deltas = self.hyperdrive.add_liquidity(self.bob.wallet, self.contribution)

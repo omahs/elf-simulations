@@ -48,7 +48,7 @@ class TestOpenShort(unittest.TestCase):
             ),
         )
         _, agent_deltas = self.hyperdrive.initialize(self.contribution, self.target_apr)
-        self.alice.wallet.update(agent_deltas)
+        self.alice.wallet.apply_delta(agent_deltas)
 
     # pylint: disable=too-many-arguments
     def verify_open_short(
