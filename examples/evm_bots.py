@@ -402,9 +402,7 @@ def do_trade(
         str_with_precision(agent_contract.balance / 1e18),
         str_with_precision(base_instance.balanceOf(agent_contract.address) / 1e18),
     )
-    logging.info("\trade %s", trade.action_type.name)
-    # execute the trade using key-word arguments
-    pool_state, _ = ape_utils.ape_trade(**params)
+    pool_state, _ = ape_utils.ape_trade(**params)  # execute the trade using key-word arguments
     return pool_state
 
 
