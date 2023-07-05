@@ -400,47 +400,46 @@ def get_wallet_from_trade_history(
         # check if there's an outstanding balance
         if balance != 0 or on_chain_balance != 0:
             if asset_type == "SHORT":
-                # loop across all the positions owned by this wallet
-                sum_product_of_open_share_price_and_value, sum_value = 0, 0
-                for specific_trade in relevant_trades.index[relevant_trades]:
-                    value = trade_history.loc[specific_trade, "value"]
-                    value *= -1 if trade_history.loc[specific_trade, "from"] == address else 1
-                    sum_value += value
-                    sum_product_of_open_share_price_and_value += (
-                        value * trade_history.loc[specific_trade, "share_price"]
-                    )
-                open_share_price = int(sum_product_of_open_share_price_and_value / sum_value)
-                assert abs(balance - sum_value) <= tolerance, "weighted average open share price calculation is wrong"
-                logging.debug("calculated weighted average open share price of %s", open_share_price)
                 previous_balance = wallet.shorts[mint_time].balance if mint_time in wallet.shorts else 0
-                new_balance = previous_balance + FixedPoint(scaled_value=balance)
+                delta_balance = FixedPoint(scaled_value=balance)
+                new_balance = previous_balance + delta_balance
                 if new_balance == 0:
-                    # remove key of "mint_time" from the "wallet.shorts" dict
                     wallet.shorts.pop(mint_time, None)
-                else:  # position balance is not zero
-                    wallet.shorts.update(
-                        {
-                            mint_time: Short(
-                                balance=new_balance,
-                                open_share_price=FixedPoint(scaled_value=open_share_price),
+                else:  # we either do a marginal update or full weighted average for open share price
+                    if add_to_existing_wallet:  # marginal update
+                        previous_share_price = (
+                            wallet.shorts[mint_time].open_share_price if mint_time in wallet.shorts else 0
+                        )
+                        delta_open_share_price = FixedPoint(scaled_value=int(trade_history.share_price.iloc[0]))
+                        updated_open_share_price = (
+                            previous_balance * previous_share_price + delta_balance * delta_open_share_price
+                        ) / balance
+                        updated_open_share_price = FixedPoint(scaled_value=int(updated_open_share_price))
+                    else:  # weighted average across a bunch of trades
+                        sum_product_of_open_share_price_and_value, sum_value = 0, 0
+                        for specific_trade in relevant_trades.index[relevant_trades]:
+                            value = trade_history.loc[specific_trade, "value"]
+                            value *= -1 if trade_history.loc[specific_trade, "from"] == address else 1
+                            sum_value += value
+                            print(f"{trade_history.loc[specific_trade, 'share_price']=}")
+                            sum_product_of_open_share_price_and_value += (
+                                value * trade_history.loc[specific_trade, "share_price"]
                             )
-                        }
-                    )
-                    logging.debug(
-                        "storing in wallet as %s",
-                        {
-                            mint_time: Short(
-                                balance=new_balance, open_share_price=FixedPoint(scaled_value=open_share_price)
-                            )
-                        },
-                    )
+                        updated_open_share_price = FixedPoint(
+                            scaled_value=int(sum_product_of_open_share_price_and_value / sum_value)
+                        )
+                        print(f"*** {(updated_open_share_price.scaled_value)=} *** {float(updated_open_share_price)=} ***")
+                        if abs(balance - sum_value) > tolerance:
+                            raise ValueError("weighted average open share price calculation is wrong")
+                        logging.debug("calculated weighted average open share price of %s", updated_open_share_price)
+                    wallet.shorts.update({mint_time: Short(new_balance, updated_open_share_price)})
+                    logging.debug("storing in wallet as %s", {mint_time: Short(new_balance, updated_open_share_price)})
             elif asset_type == "LONG":
                 previous_balance = wallet.longs[mint_time].balance if mint_time in wallet.longs else 0
                 new_balance = previous_balance + FixedPoint(scaled_value=balance)
-                if new_balance == 0:
-                    # remove key of "mint_time" from the "wallet.longs" dict
+                if new_balance == 0:  # remove empty position from wallet
                     wallet.longs.pop(mint_time, None)
-                else:  # position balance is not zero
+                else:  # update non-zero position in wallet
                     wallet.longs.update({mint_time: Long(balance=new_balance)})
                 logging.debug("storing in wallet as %s", {mint_time: Long(balance=balance)})
             elif asset_type == "LP":
