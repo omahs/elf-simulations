@@ -9,11 +9,8 @@ import time
 from datetime import datetime
 from typing import Any
 
-import attr
 import requests
-from eth_account import Account
-from eth_account.signers.local import LocalAccount
-from eth_typing import BlockNumber, ChecksumAddress, URI
+from eth_typing import BlockNumber, URI
 from eth_utils import address
 from fixedpointmath import FixedPoint
 from hexbytes import HexBytes
@@ -34,37 +31,10 @@ from web3.types import (
 )
 
 from elfpy.data.db_schema import PoolConfig, PoolInfo, Transaction, WalletInfo
+from elfpy.evm_interface.accounts import AgentAccount
 from elfpy.markets.hyperdrive import hyperdrive_assets
 
 RETRY_COUNT = 10
-
-
-class TestAccount:
-    """Web3 account that has helper functions & associated funding source"""
-
-    # TODO: We should be adding more methods to this class.
-    # If not, we can delete it at the end of the refactor.
-    # pylint: disable=too-few-public-methods
-
-    def __init__(self, extra_entropy: str = "TEST ACCOUNT"):
-        """Initialize an account"""
-        self.account: LocalAccount = Account().create(extra_entropy=extra_entropy)
-
-    @property
-    def checksum_address(self) -> ChecksumAddress:
-        """Return the checksum address of the account"""
-        return Web3.to_checksum_address(self.account.address)
-
-
-@attr.s
-class HyperdriveAddressesJson:
-    """Addresses for deployed Hyperdrive contracts."""
-
-    # pylint: disable=too-few-public-methods
-
-    base_token: str = attr.ib()
-    mock_hyperdrive: str = attr.ib()
-    mock_hyperdrive_math: str = attr.ib()
 
 
 def initialize_web3_with_http_provider(ethereum_node: URI | str, request_kwargs: dict | None = None) -> Web3:
@@ -256,7 +226,7 @@ def smart_contract_read(contract: Contract, function_name: str, *fn_args, **fn_k
 
 
 def smart_contract_transact(
-    web3: Web3, contract: Contract, function_name: str, from_account: TestAccount, *fn_args
+    web3: Web3, contract: Contract, function_name: str, from_account: AgentAccount, *fn_args
 ) -> TxReceipt:
     """Execute a named function on a contract that requires a signature & gas"""
     func_handle = contract.get_function_by_name(function_name)(*fn_args)
@@ -273,7 +243,7 @@ def smart_contract_transact(
     return tx_receipt
 
 
-def fetch_address_from_url(contracts_url: str) -> HyperdriveAddressesJson:
+def fetch_address_from_url(contracts_url: str) -> HyperdriveAddresses:
     """Fetch addresses for deployed contracts in the Hyperdrive system."""
     attempt_num = 0
     response = None
@@ -290,11 +260,11 @@ def fetch_address_from_url(contracts_url: str) -> HyperdriveAddressesJson:
     if response.status_code != 200:
         raise ConnectionError(f"Request failed with status code {response.status_code} @ {time.ctime()}")
     addresses_json = response.json()
-    addresses = HyperdriveAddressesJson(**{_camel_to_snake(key): value for key, value in addresses_json.items()})
+    addresses = HyperdriveAddresses(**{_camel_to_snake(key): value for key, value in addresses_json.items()})
     return addresses
 
 
-def get_hyperdrive_contract(web3: Web3, abis: dict, addresses: HyperdriveAddressesJson) -> Contract:
+def get_hyperdrive_contract(web3: Web3, abis: dict, addresses: HyperdriveAddresses) -> Contract:
     """Get the hyperdrive contract given abis
 
     Arguments
@@ -321,7 +291,7 @@ def get_hyperdrive_contract(web3: Web3, abis: dict, addresses: HyperdriveAddress
     return hyperdrive_contract
 
 
-def get_funding_contract(web3: Web3, abis: dict, addresses: HyperdriveAddressesJson) -> Contract:
+def get_funding_contract(web3: Web3, abis: dict, addresses: HyperdriveAddresses) -> Contract:
     """Get the funding contract for a given abi
     Arguments
     ---------
